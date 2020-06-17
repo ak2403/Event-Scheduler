@@ -1,0 +1,6 @@
+EventsTableIAM:
+  Effect: Allow
+  Action:
+    - dynamodb:PutItem
+  Resource:
+    - ${self:custom.EventsTable.arn}

@@ -11,28 +11,15 @@ provider:
   memorySize: 256
   stage: ${opt:stage, 'dev'}
   region: ap-southeast-2
+  environment:
+    EVENTS_TABLE_NAME: ${self:custom.EventsTable.name}
   iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:PutItem
-      Resource:
-        - arn:aws:dynamodb:#{AWS::Region}:#{AWS::AccountId}:table/EventsTable
+    - ${file(iam/EventsTableIAM.yml):EventsTableIAM}
 
 resources:
   Resources:
-    EventsTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: EventsTable
-        BillingMode: PAY_PER_REQUEST
-        AttributeDefinitions:
-          - AttributeName: id
-            AttributeType: S
-        KeySchema:
-          - AttributeName: id
-            KeyType: HASH
+    EventsTable: ${file(resources/EventsTable.yml):EventsTable}
   
-
 functions:
   createEvent:
     handler: src/handlers/createEvent.handler
@@ -40,3 +27,8 @@ functions:
       - http:
           method: POST
           path: /event
+
+custom:
+  EventsTable:
+    name: !Ref EventsTable
+    arn: !GetAtt EventsTable.Arn

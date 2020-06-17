@@ -1,4 +1,4 @@
-import {v4 as uuid} from 'uuid';
+import { v4 as uuid } from 'uuid';
 import AWS from 'aws-sdk';
 import middy from '@middy/core';
 import httpJsonBodyParser from '@middy/http-json-body-parser';
@@ -22,14 +22,14 @@ async function createEvent(event, context) {
     capacity
   };
 
-  try{
+  try {
     await dynamodb.put({
       TableName: process.env.EVENTS_TABLE_NAME,
       Item: newEvent
     }).promise();
   }
-  catch(error){
-    throw new createError.InternalServerError(error)
+  catch (error) {
+    throw new createError.InternalServerError(error);
   }
 
   return {
@@ -39,8 +39,8 @@ async function createEvent(event, context) {
 }
 
 export const handler = middy(createEvent)
-                        .use(httpJsonBodyParser())
-                        .use(httpEventNormalizer())
-                        .use(httpErrorHandler());
+  .use(httpJsonBodyParser())
+  .use(httpEventNormalizer())
+  .use(httpErrorHandler());
 
 

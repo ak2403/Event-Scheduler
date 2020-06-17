@@ -28,6 +28,20 @@ functions:
           method: POST
           path: /event
 
+  getEvents:
+    handler: src/handlers/getEvents.handler
+    events:
+      - http:
+          method: GET
+          path: /events
+
+  getEvent:
+    handler: src/handlers/getEvent.handler
+    events:
+      - http:
+          method: GET
+          path: /event/{id}
+
 custom:
   EventsTable:
     name: !Ref EventsTable

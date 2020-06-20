@@ -1,0 +1,15 @@
+AvailabilityTable:
+  Type: AWS::DynamoDB::Table
+  Properties:
+    TableName: AvailabilityTable-${self:provider.stage}
+    BillingMode: PAY_PER_REQUEST
+    AttributeDefinitions:
+      - AttributeName: id
+        AttributeType: S
+      - AttributeName: event_id
+        AttributeType: S
+    KeySchema:
+      - AttributeName: id
+        KeyType: HASH
+      - AttributeName: event_id
+        KeyType: RANGE

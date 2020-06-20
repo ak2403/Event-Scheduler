@@ -15,12 +15,15 @@ provider:
   region: ap-southeast-2
   environment:
     EVENTS_TABLE_NAME: ${self:custom.EventsTable.name}
+    AVAILABILITY_TABLE_NAME: ${self:custom.AvailabilityTable.name}
   iamRoleStatements:
     - ${file(iam/EventsTableIAM.yml):EventsTableIAM}
+    - ${file(iam/AvailabilityTableIAM.yml):AvailabilityTableIAM}
 
 resources:
   Resources:
     EventsTable: ${file(resources/EventsTable.yml):EventsTable}
+    AvailabilityTable: ${file(resources/AvailabilityTable.yml):AvailabilityTable}
   
 functions:
   createEvent:
@@ -54,6 +57,20 @@ functions:
             template:
               application/json: '{ "status" : "$input.params(''status'')" }'
 
+  updateEvent:
+    handler: src/handlers/event/updateEvent.handler
+    events:
+      - http:
+          method: PUT
+          path: /event/{id}
+
+  createBooking:
+    handler: src/handlers/booking/createBooking.handler
+    events:
+      - http:
+          method: POST
+          path: /book/{id}
+          
 custom:
   dynamodb:
     stages:
@@ -72,3 +89,7 @@ custom:
   EventsTable:
     name: !Ref EventsTable
     arn: !GetAtt EventsTable.Arn
+
+  AvailabilityTable:
+    name: !Ref AvailabilityTable
+    arn: !GetAtt AvailabilityTable.Arn

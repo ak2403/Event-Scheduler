@@ -1,0 +1,9 @@
+AvailabilityTableIAM:
+  Effect: Allow
+  Action:
+    - dynamodb:PutItem
+    - dynamodb:GetItem
+    - dynamodb:Scan
+    - dynamodb:Query
+  Resource:
+    - ${self:custom.AvailabilityTable.arn}

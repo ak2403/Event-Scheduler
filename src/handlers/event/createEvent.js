@@ -2,6 +2,9 @@ import { v4 as uuid } from 'uuid';
 import AWS from 'aws-sdk';
 import commonMiddleware from '../../lib/commonMiddleware';
 import createError from 'http-errors';
+import validator from '@middy/validator'
+import createEventSchema from '../../schema/createEventSchema'
+import createAvailability from '../availability/createAvailability'
 
 let options = {}
 let TABLE_NAME = process.env.EVENTS_TABLE_NAME;
@@ -17,7 +20,8 @@ if(process.env.IS_OFFLINE){
 const dynamodb = new AWS.DynamoDB.DocumentClient(options);
 
 async function createEvent(event, context) {
-  let { name, venue, capacity, status, features } = event.body;
+  let { name, venue, capacity, status, features, isDailyAvailable, isWeekDayAvailable,
+    isWeekEndAvailable, available_time } = event.body;
 
   let time_now = new Date();
 
@@ -37,6 +41,17 @@ async function createEvent(event, context) {
       TableName: TABLE_NAME,
       Item: newEvent
     }).promise();
+
+    await createAvailability({
+      event_id: newEvent.id,
+      availableType: {
+        isDailyAvailable,
+        isWeekDayAvailable,
+        isWeekEndAvailable
+      },
+      available_time,
+      booked_id: []
+    })
   }
   catch (error) {
     throw new createError.InternalServerError(error);
@@ -48,4 +63,5 @@ async function createEvent(event, context) {
   };
 }
 
-export const handler = commonMiddleware(createEvent);
+export const handler = commonMiddleware(createEvent)
+.use(validator({ inputSchema: createEventSchema, useDefaults: true }));

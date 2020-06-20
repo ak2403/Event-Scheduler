@@ -4,5 +4,7 @@ EventsTableIAM:
     - dynamodb:PutItem
     - dynamodb:GetItem
     - dynamodb:Scan
+    - dynamodb:Query
   Resource:
     - ${self:custom.EventsTable.arn}
+    - !Join ['/', ['${self:custom.EventsTable.arn}', 'index', 'statusFilter']]

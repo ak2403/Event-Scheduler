@@ -4,6 +4,8 @@ service:
 plugins:
   - serverless-bundle
   - serverless-pseudo-parameters
+  - serverless-offline
+  - serverless-dynamodb-local
 
 provider:
   name: aws
@@ -22,27 +24,51 @@ resources:
   
 functions:
   createEvent:
-    handler: src/handlers/createEvent.handler
+    handler: src/handlers/event/createEvent.handler
     events:
       - http:
           method: POST
           path: /event
 
   getEvents:
-    handler: src/handlers/getEvents.handler
+    handler: src/handlers/event/getEvents.handler
     events:
       - http:
           method: GET
           path: /events
 
   getEvent:
-    handler: src/handlers/getEvent.handler
+    handler: src/handlers/event/getEvent.handler
     events:
       - http:
           method: GET
           path: /event/{id}
 
+  filterEvent:
+    handler: src/handlers/event/filterEvent.handler
+    events:
+      - http:
+          method: GET
+          path: /events/filter
+          request:
+            template:
+              application/json: '{ "status" : "$input.params(''status'')" }'
+
 custom:
+  dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+    migration:
+      dir: offline/migrations
+      
+
+  bundle:
+    linting: false
+
   EventsTable:
     name: !Ref EventsTable
     arn: !GetAtt EventsTable.Arn

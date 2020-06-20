@@ -6,6 +6,21 @@ EventsTable:
     AttributeDefinitions:
       - AttributeName: id
         AttributeType: S
+      - AttributeName: status
+        AttributeType: S
     KeySchema:
       - AttributeName: id
         KeyType: HASH
+    ## GlobalSecondaryIndexes: adding the index for the filtering the entries.
+    ## The filter will be based on Status, therefore,
+    ## IndexName: to identify the filter
+    ## KeySchema: Adding the columns for the filter.
+    GlobalSecondaryIndexes:
+      - IndexName: statusFilter
+        KeySchema: 
+          - AttributeName: status
+            KeyType: HASH
+        ## Projection: When the entry satisfy the filter, return all the objects in that entry
+        ## ProjectionType (ALL): Tells to return all the objects
+        Projection:
+          ProjectionType: ALL
